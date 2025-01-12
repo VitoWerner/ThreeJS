@@ -26,7 +26,6 @@ export class CityComponent implements AfterViewInit {
   }
 
   private createScene() {
-    // Szene, Kamera und Renderer initialisieren
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.set(30, 80, 80);
@@ -36,41 +35,26 @@ export class CityComponent implements AfterViewInit {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // OrbitControls für Kamerabewegung
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.25;
     this.controls.screenSpacePanning = true;
 
-    // Beleuchtung hinzufügen
+
     this.addLights();
 
-    // Heightmap laden und generieren
     const loader = new THREE.TextureLoader();
-    loader.load('assets/texture/Unbenannt.png', (texture) => this.onTextureLoaded(texture));
+    loader.load('assets/texture/coolcool.png', (texture) => this.onTextureLoaded(texture));
 
     this.addPaperPlaneModel();
     this.addCityModel();
   }
 
-  /*
-  private addLights() {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    this.scene.add(ambientLight);
-
-    const spotLight = new THREE.SpotLight(0xffffff, 1);
-    spotLight.position.set(60, 60, 70);
-    spotLight.castShadow = true;
-    spotLight.shadow.mapSize.width = 4096;
-    spotLight.shadow.mapSize.height = 4096;
-    this.scene.add(spotLight);
-  }*/
   private addLights() {
     const sunlight = new THREE.DirectionalLight(0xffffff, 1);
-    sunlight.position.set(-100, 100, 0); // Startposition (Osten)
+    sunlight.position.set(-100, 100, 0);
     sunlight.castShadow = true;
 
-    // Schatten-Einstellungen optimieren
     sunlight.shadow.mapSize.width = 4096;
     sunlight.shadow.mapSize.height = 4096;
     sunlight.shadow.camera.near = 0.1;
@@ -82,13 +66,12 @@ export class CityComponent implements AfterViewInit {
 
     this.scene.add(sunlight);
 
-    // Lichtanimation: Von Osten nach Westen bewegen
-    const animateLight = () => {
-      sunlight.position.x += 0.1; // Bewege Licht in X-Richtung (Osten -> Westen)
 
-      // Zurücksetzen, wenn das Licht den Westen erreicht
+    const animateLight = () => {
+      sunlight.position.x += 0.1;
+
       if (sunlight.position.x > 100) {
-        sunlight.position.x = -100; // Zurück zu Osten
+        sunlight.position.x = -100;
       }
 
       requestAnimationFrame(animateLight);
@@ -114,9 +97,9 @@ export class CityComponent implements AfterViewInit {
               child.receiveShadow = true;
             }
           });
-          object.position.set(34, 1, 42);
-          object.rotateY(65);
-          object.scale.set(1, 1, 1); // Größe des Modells anpassen
+          object.position.set(250, 15, 250);
+          object.rotateY(40);
+          object.scale.set(10, 10, 10);
           this.scene.add(object);
 
 
@@ -132,26 +115,23 @@ export class CityComponent implements AfterViewInit {
 
 
   private animatePaperPlane(object: THREE.Object3D) {
-    const startPosition = { x: 60, z: 60 }; // Startposition (x, z)
-    const endPosition = { x: 28, z: 28 }; // Endposition (x, z)
-    const speed = 0.1; // Geschwindigkeit der Bewegung
+    const startPosition = { x: 250, z: 250 };
+    const endPosition = { x: -50, z: -50 };
+    const speed = 0.5;
 
     const animate = () => {
-      // Bewegung entlang der x- und z-Achse
       object.position.x -= speed;
       object.position.z -= speed;
 
-      // Zurücksetzen, wenn das Ziel erreicht wurde
+      // Zurücksetzen, wenn Punkt erreicht
       if (object.position.x <= endPosition.x && object.position.z <= endPosition.z) {
         object.position.x = startPosition.x;
         object.position.z = startPosition.z;
       }
 
-      // Nächsten Frame anfordern
       requestAnimationFrame(animate);
     };
 
-    // Animation starten
     animate();
   }
 
@@ -172,8 +152,8 @@ export class CityComponent implements AfterViewInit {
               child.receiveShadow = true;
             }
           });
-          object.position.set(30, 1, 30);
-          object.scale.set(1.5, 1.5, 1.5); // Position des Modells anpassen
+          object.position.set(100, 1, 100);
+          object.scale.set(17, 17, 17);
           object.name = 'city';
           this.scene.add(object);
         },
