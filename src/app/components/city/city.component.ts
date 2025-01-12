@@ -82,6 +82,9 @@ export class CityComponent implements AfterViewInit {
 
 
   private addPaperPlaneModel() {
+    const textureLoader = new THREE.TextureLoader();
+    const normalMap = textureLoader.load('assets/texture/normal.png');
+
     const mtlLoader = new MTLLoader();
     mtlLoader.load('assets/paperplane.mtl', (materials) => {
       materials.preload();
@@ -93,6 +96,14 @@ export class CityComponent implements AfterViewInit {
         (object) => {
           object.traverse((child) => {
             if (child instanceof THREE.Mesh) {
+              const originalMaterial = child.material as THREE.MeshStandardMaterial;
+
+              child.material = new THREE.MeshStandardMaterial({
+                map: originalMaterial.map,
+                normalMap: normalMap,
+                color: 0x0077ff,
+              });
+
               child.castShadow = true;
               child.receiveShadow = true;
             }
@@ -194,9 +205,11 @@ export class CityComponent implements AfterViewInit {
         const y = imageData.data[pixelIndex * 4] * scale;
 
         const normalizedHeight = y / maxHeight;
-        let color = [1, 1, 1, 1];
-        if (normalizedHeight < 0.5) color = [0, 1, 0, 1];
-        else if (normalizedHeight < 0.8) color = [0.6, 0.3, 0, 1];
+        //let color = [1, 1, 1, 1];
+        //if (normalizedHeight < 0.5) color = [0, 1, 0, 1];
+        //else if (normalizedHeight < 0.8) color = [0.6, 0.3, 0, 1];
+        const grayValue = 1 - normalizedHeight;
+        const color = [grayValue, grayValue, grayValue, 1];
 
         colors.push(...color);
         vertices.push(x, y, z);
@@ -219,6 +232,7 @@ export class CityComponent implements AfterViewInit {
     geometry.computeVertexNormals();
 
     const material = new THREE.MeshStandardMaterial({ vertexColors: true });
+
     this.map = new THREE.Mesh(geometry, material);
     this.map.castShadow = true;
     this.map.receiveShadow = true;
