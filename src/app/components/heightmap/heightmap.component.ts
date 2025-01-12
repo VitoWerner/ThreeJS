@@ -10,6 +10,8 @@ import {
   WebGLRenderer
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
 
 @Component({
   selector: 'app-heightmap',
@@ -216,4 +218,6 @@ export class HeightmapComponent implements AfterViewInit {
     const data = context.getImageData(0, 0, canvas.width, canvas.height);
     this.generateTerrain(data);
   }
+
+
 }
