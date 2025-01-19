@@ -17,6 +17,7 @@ export class CityComponent implements AfterViewInit {
   private renderer!: WebGLRenderer;
   private map!: Mesh<BufferGeometry, MeshStandardMaterial>;
   private controls!: OrbitControls;
+  private sun!: Mesh;
 
   constructor() {}
 
@@ -42,6 +43,7 @@ export class CityComponent implements AfterViewInit {
 
 
     this.addLights();
+    this.addSun();
 
     const loader = new THREE.TextureLoader();
     loader.load('assets/texture/coolcool.png', (texture) => this.onTextureLoaded(texture));
@@ -52,34 +54,59 @@ export class CityComponent implements AfterViewInit {
 
   private addLights() {
     const sunlight = new THREE.DirectionalLight(0xffffff, 1);
-    sunlight.position.set(-100, 100, 0);
+    sunlight.position.set(-300, 250, 300);
     sunlight.castShadow = true;
+    sunlight.name = 'sunlight';
 
-    sunlight.shadow.mapSize.width = 4096;
-    sunlight.shadow.mapSize.height = 4096;
+    sunlight.shadow.mapSize.width = 12288;
+    sunlight.shadow.mapSize.height = 12288;
     sunlight.shadow.camera.near = 0.1;
-    sunlight.shadow.camera.far = 500;
-    sunlight.shadow.camera.left = -200;
-    sunlight.shadow.camera.right = 200;
-    sunlight.shadow.camera.top = 200;
-    sunlight.shadow.camera.bottom = -200;
+    sunlight.shadow.camera.far = 1500;
+    sunlight.shadow.camera.left = -750;
+    sunlight.shadow.camera.right = 750;
+    sunlight.shadow.camera.top = 750;
+    sunlight.shadow.camera.bottom = -750;
 
     this.scene.add(sunlight);
 
 
     const animateLight = () => {
-      sunlight.position.x += 0.1;
+      sunlight.position.x += 0.5;
 
-      if (sunlight.position.x > 100) {
-        sunlight.position.x = -100;
+      if (sunlight.position.x > 800) {
+        sunlight.position.x = -300;
       }
 
       requestAnimationFrame(animateLight);
     };
 
     animateLight();
+   }
+
+
+  private addSun() {
+    const sunGeometry = new THREE.SphereGeometry(32, 32, 32);
+    const sunMaterial = new THREE.MeshStandardMaterial({
+      emissive: 0xffff00,
+      emissiveIntensity: 1,
+      color: 0xffcc33,
+    });
+
+    this.sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    const sunlight = this.scene.getObjectByName('sunlight') as THREE.DirectionalLight;
+    if (sunlight) {
+      this.sun.position.copy(sunlight.position);
+    }
+
+    this.scene.add(this.sun);
   }
 
+  private updateSunPosition() {
+    const sunlight = this.scene.getObjectByName('sunlight') as THREE.DirectionalLight;
+    if (sunlight) {
+      this.sun.position.copy(sunlight.position);
+    }
+  }
 
   private addPaperPlaneModel() {
     const textureLoader = new THREE.TextureLoader();
@@ -178,7 +205,10 @@ export class CityComponent implements AfterViewInit {
 
   private render() {
     this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(() => this.render());
+    requestAnimationFrame(() => {
+      this.render();
+      this.updateSunPosition();
+    });
   }
 
   private generateTerrain(imageData: ImageData) {
